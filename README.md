@@ -1,9 +1,4 @@
 # Spotify Stats   
-Final Project for IT2830 at Mizzou   
-
-## Group
-- Michael Dillahunty (mjdqw5)
-- Sawyer Seitz (sgsqb4)
 
 ## [Instructions] Run Each App Individually
 ### Client (frontend)

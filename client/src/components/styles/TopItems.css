@@ -1,0 +1,43 @@
+.TopItems {
+    display: flex;
+}
+
+.top_items-content-container {
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
+}
+
+.top_items-content-container h1 {
+    color: var(--text-base);
+}
+
+.top_items-dropdown-wrapper {
+    display: block;
+}
+
+.top_items-dropdown-wrapper ul {
+    font-weight: bold;
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    background-color: var(--bg-tinted-base);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+
+    -webkit-appearance: none;  
+    -moz-appearance: none;     
+    appearance: none;          
+    border: 1px solid transparent;
+    background-repeat: no-repeat;
+    background-position: right 10px center; /* Position of the custom arrow */
+
+}
+
+.top_items-dropdown-wrapper select:hover,
+.top_items-dropdown-wrapper select:focus {
+    cursor: pointer;
+    background-color: var(--bg-elevated-highlight);
+}
+

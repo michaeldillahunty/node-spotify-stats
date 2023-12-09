@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const GenericListSchema = new mongoose.Schema({
+const TopArtistSchema = new mongoose.Schema({
     user: {
         type: String,
         required: true
@@ -14,5 +14,5 @@ const GenericListSchema = new mongoose.Schema({
     }],
 }, { timestamps: true });
 
-const GenericListModel = mongoose.model('list', GenericListSchema);
-module.exports = GenericListModel;
+const UserTopArtists = mongoose.model('top-artists-list', TopArtistSchema);
+module.exports = UserTopArtists;

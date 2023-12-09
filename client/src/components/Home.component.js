@@ -61,7 +61,7 @@ function Home(props) {
 
    const [metric, setMetric] = useState('artists');
    const [timeRange, setTimeRange] = useState('medium_term');
-   const [limit, setLimit] = useState(10);
+   const [limit, setLimit] = useState(5);
    function handleMetricChange(e) {
       setMetric(e.target.value);
    }
@@ -114,35 +114,51 @@ function Home(props) {
 
    const [saveStatus, setSaveStatus] = useState('');
    const [saveSuccess, setSaveSuccess] = useState(true);
-
    const handleSave = async () => {
       if (topItems && Array.isArray(topItems.items) && topItems.items.length > 0) {
-         try {
-             const response = await axios.post('http://localhost:8000/saveList', {
-                 items: topItems.items,
-                 user: currentUser.id,
-             });
-             console.log("List saved:", response.data);
-             setSaveStatus('List saved successfully!');
-             setSaveSuccess(true); // Indicate that the save was successful
-         } catch (error) {
-             console.error('Error saving list:', error);
-             setSaveStatus('Failed to save list');
-             setSaveSuccess(false); // Indicate that the save failed
-         }
-         setTimeout(() => {
-            setSaveStatus('');
-            setSaveSuccess(true); // Reset the success status
-          }, 5000);
-     } else {
-         console.log("No items to save");
-         setSaveStatus('No items to save.');
-         setSaveSuccess(false); 
-     }
-  };
+        try {
+          // Determine the type based on the items in topItems, this assumes you have such information
+          const type = determineType(topItems.items); // This should return 'track' or 'artist'
+          console.log("TYPE : " + type)
+          
+          const response = await axios.post('http://localhost:8000/saveListType', {
+            items: topItems.items,
+            user: currentUser.id,
+            type: type,
+          });
+          
+          console.log("List saved:", response.data);
+          setSaveStatus('List saved successfully!');
+          setSaveSuccess(true); // Indicate that the save was successful
+        } catch (error) {
+          console.error('Error saving list:', error);
+          setSaveStatus('Failed to save list');
+          setSaveSuccess(false); // Indicate that the save failed
+        }
+        // Clear the save status after 5 seconds
+        setTimeout(() => {
+          setSaveStatus('');
+          setSaveSuccess(null); // Reset the success status to null or undefined
+        }, 5000);
+      } else {
+        console.log("No items to save");
+        setSaveStatus('No items to save.');
+        setSaveSuccess(false);
+      }
+    };
+    
+    const determineType = (items) => {
+      if (items[0].album) {
+        return 'track';
+      } else {
+        return 'artist';
+      }
+    };
 
-  const [lists, setLists] = useState([]);
-  const [isFetching, setIsFetching] = useState(false);
+
+   const [artistLists, setArtistLists] = useState([]);
+   const [trackLists, setTrackLists] = useState([]);
+   const [isFetching, setIsFetching] = useState(false);
 
    const fetchUserLists = async () => {
    
@@ -150,7 +166,13 @@ function Home(props) {
          setIsFetching(true); // Set to true before fetching
          try {
             const response = await axios.get(`http://localhost:8000/getLists/${currentUser.id}`);
-            setLists(response.data); // Set the fetched lists to state
+            console.log(response.data);
+            if (response.data.artistLists) {
+               setArtistLists(response.data.artistLists);
+           }
+           if (response.data.trackLists) {
+               setTrackLists(response.data.trackLists);
+           }
          } catch (error) {
             console.error('Error fetching lists:', error);
          } finally {
@@ -158,6 +180,7 @@ function Home(props) {
          }
       }
    };
+
 
 
    
@@ -266,17 +289,18 @@ function Home(props) {
                <button onClick={fetchUserLists} className="fetch-lists-button" disabled={isFetching}>  {isFetching ? 'Fetching...' : 'Fetch Previous Lists'}</button>
             </div>
             <div className="prev-user-lists-container">
-               <div className="prev-list-content">
-                     {lists.map((list, index) => (
+               <section className="artist-list-content">
+                  <h3 className="list-type-h3"> Top Arists List(s) </h3>
+                     {Array.isArray(artistLists) && artistLists.map((list, index) => (
                         <div className={`prev-lists ${list.items.length > 11 ? 'two-columns' : ''}`} key={index}>
-                           <div className="title-card">
-                              <h3>Saved List #{index + 1}</h3>
-                           </div>
+                           {/* <div className="title-card">
+                              <h3>Saved Artist List #{index + 1}</h3>
+                           </div> */}
                            {list.items.map((item, idx) => (
                                  <div key={idx} className="list-item">
                                     {item.images[0] && item.external_urls.spotify && (
                                        <a href={item.external_urls.spotify} target="_blank" rel="noopener noreferrer">
-                                             <img src={item.images[0].url} alt={item.name} style={{ width: '100px', height: '100px', marginBottom: '5px' }}/>
+                                             <img src={item.images[0].url} alt={item.name} style={{ width: '75px', height: '75px', marginBottom: '5px' }}/>
                                        </a>
                                     )}
                                     <p>{item.name}</p>
@@ -284,6 +308,61 @@ function Home(props) {
                            ))}
                         </div>
                      ))}
+               </section>
+               <div className="track-list-content">
+                  <h3 className="list-type-h3"> Your Top Tracks Lists</h3>
+                  <div className="track-item-row">
+                     {Array.isArray(trackLists) && trackLists.map((list, index) => (
+                        <div className={`track-prev-lists ${list.items.length > 11 ? 'two-columns' : ''}`} key={index}>
+                           {/* <div className="title-card">
+                              <h3>Saved Track List #{index + 1}</h3>
+                           </div> */}
+                           {list.items.map((item, idx) => (
+                              <div key={idx} className="list-item">
+                              
+                                 <div className="track-col-1">
+                                 
+                                    {item.album.images[0] && (
+                                    <a href={item.external_urls.spotify} target="_blank" rel="noopener noreferrer">
+                                       <p className="track-rank">{idx + 1}</p>
+                                       <img href={item.external_urls.spotify} src={item.album.images[0].url} alt={item.name} style={{ width: '75px', height: '75px', marginBottom: '5px' }}/>
+                                       <p className="track-col-song-name">{item.name}</p>
+                                       <p className="track-col-artist">{item.artists[0].name}</p>
+                                       <p className="track-col-album">{item.album.name}</p>
+                                       <p className="track-col-duration">{formatSongDuration(item.duration_ms)}</p>
+                                       {item.preview_url && (
+                                          <>
+                                             <div className="play-preview-wrapper">
+                                             <audio id={`preview-audio-${idx}`} src={item.preview_url}>
+                                                Your browser does not support the audio element.
+                                             </audio>
+                                             <button className="preview-button" onClick={(e) => {
+                                                e.preventDefault(); // Stop the button from triggering the link
+                                                const audio = document.getElementById(`preview-audio-${idx}`);
+                                                if (audio.paused) {
+                                                   audio.play();
+                                                } else {
+                                                   audio.pause();
+                                                   audio.currentTime = 0; // Reset the audio to the start
+                                                }
+                                             }}>
+                                                <svg data-encore-id="icon" role="img" aria-hidden="true" viewBox="0 0 16 16" className="Svg-sc-ytk21e-0 kPpCsU"><path d="M2.7 1a.7.7 0 0 0-.7.7v12.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7H2.7zm8 0a.7.7 0 0 0-.7.7v12.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+
+                                             </button>
+                                             </div>
+                                          </>
+                                          )}
+                                    </a>
+                                    )}
+                                    {/* <svg data-encore-id="icon" role="img" aria-hidden="true" viewBox="0 0 16 16" class="Svg-sc-ytk21e-0 kPpCsU"><path d="M3 1.713a.7.7 0 0 1 1.05-.607l10.89 6.288a.7.7 0 0 1 0 1.212L4.05 14.894A.7.7 0 0 1 3 14.288V1.713z"></path></svg> */}
+                                    
+                                    
+                                 </div>
+                              </div>
+                              ))}
+                        </div>
+                     ))}
+                     </div>
                </div>
             </div>
          </div>
@@ -301,9 +380,16 @@ export default Home;
             <div className={`dropdown-menu ${open? 'active' : 'inactive'}`} >
                <h3>Welcome <br/></h3>
                <ul>
-                  <DropdownItem img = {baseIcon} text = {"My Profile"}/>
+                  <DropdownItem img = {baseIcon} text = {"My  Profile"}/>
                   <DropdownItem img = {baseIcon} text = {"Edit Profile"}/>
                   <DropdownItem img = {baseIcon} text = {"Inbox"}/>
                </ul>
             </div>
          </div>  */}
+
+
+function formatSongDuration(ms) {
+   const minutes = Math.floor(ms / 60000);
+   const seconds = ((ms % 60000) / 1000).toFixed(0);
+   return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;  // returns "X:XX" format
+}

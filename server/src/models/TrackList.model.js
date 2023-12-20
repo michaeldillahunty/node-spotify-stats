@@ -19,7 +19,7 @@ const ImageSchema = new Schema({
 const AlbumSchema = new Schema({
     album_type: String,
     artists: [ArtistSchema],
-    available_markets: [String],
+    // available_markets: [String],
     external_urls: { spotify: String },
     href: String,
     id: String,
@@ -35,8 +35,8 @@ const AlbumSchema = new Schema({
 const TrackSchema = new Schema({
     album: AlbumSchema,
     artists: [ArtistSchema],
-    available_markets: [String],
-    disc_number: Number,
+    // available_markets: [String],
+    // disc_number: Number,
     duration_ms: Number,
     explicit: Boolean,
     external_ids: { isrc: String },

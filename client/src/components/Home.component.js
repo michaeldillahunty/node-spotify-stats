@@ -59,6 +59,9 @@ function Home(props) {
       fetchUserProfile();
    }, []);
 
+
+
+   // User searches
    const [metric, setMetric] = useState('artists');
    const [timeRange, setTimeRange] = useState('medium_term');
    const [limit, setLimit] = useState(5);

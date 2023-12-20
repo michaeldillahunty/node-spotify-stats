@@ -286,6 +286,7 @@ code {
     border-radius: 15px;
     box-shadow: 0 1px 3px rgba(0, 255, 89, 0.2);
     height: auto;
+    margin-bottom: 25px;
 }
 
 
@@ -449,6 +450,7 @@ code {
     display: flex;
     flex-direction: column;
     width: 100%; /* Ensure full width */
+    margin-bottom: 30px;
   }
 
   .track-col-1 {
